@@ -95,6 +95,7 @@ class CourseListPageState extends State<CourseListWidget> {
       MaterialPageRoute(builder: (context) => CourseDetailPage(course)),
     );
     if (result == true) {
+      print("actualizando data");
       getData();
     }
   }

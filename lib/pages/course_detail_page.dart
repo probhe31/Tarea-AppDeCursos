@@ -108,18 +108,17 @@ class CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   void select(String value) {
-    //int result;
+    print("who is the context: ");
+    print(context);
+
     switch (value) {
       case mnuSave:
         save();
         break;
       case mnuDelete:
+        showConfirmationDeleteDialog();
+
         //Navigator.pop(context, true);
-        if (course.id == null) {
-          return;
-        } else {
-          showConfirmationDeleteDialog(course.id);
-        }
 
         break;
       case mnuBack:
@@ -179,40 +178,51 @@ class CourseDetailPageState extends State<CourseDetailPage> {
     course.description = descriptionController.text;
   }
 
-  void delete(int idCourse) async {
-    int result;
-    result = await courseRepository.deleteById(course.id);
+  void delete() async {
+    Navigator.pop(context, true);
+
+    int result = await courseRepository.deleteById(course.id);
     if (result != 0) {
-      Navigator.pop(context, true);
-      /*AlertDialog alertDialog = AlertDialog(
-        title: Text("Delete Course"),
-        content: Text("The Course has been deleted"),
-      );
-      showDialog(
-          context: context, builder: (BuildContext context) => alertDialog);*/
+      _showAlertDialog('Status', 'Note Deleted Successfully');
+    } else {
+      _showAlertDialog('Status', 'Error Occured while Deleting Note');
     }
   }
 
-  void showConfirmationDeleteDialog(int idCourse) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: new Text("Confirmación"),
-              content: new Text('¿Estás seguro de eliminar el registro?'),
-              actions: <Widget>[
-                new FlatButton(
-                    onPressed: () {
-                      //Navigator.of(context).pop();
-                      Navigator.pop(context);
-                    },
-                    child: new Text("Cancel")),
-                new FlatButton(
-                    onPressed: () {
-                      delete(idCourse);
-                    },
-                    child: new Text("Yes"))
-              ]);
-        });
+  void _showAlertDialog(String title, String message) {
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+    );
+    showDialog(context: context, builder: (_) => alertDialog);
+  }
+
+  void showConfirmationDeleteDialog() {
+    if (course.id == null) {
+      return;
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+                title: new Text("Confirmación"),
+                content: new Text('¿Estás seguro de eliminar el registro?'),
+                actions: <Widget>[
+                  new FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: new Text("Cancelar")),
+                  new FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                        setState(() {
+                          delete();
+                        });
+                      },
+                      child: new Text("Si"))
+                ]);
+          });
+    }
   }
 }
